@@ -2,11 +2,14 @@ import random
 import numpy as np
 from copy import copy
 from random import randint
+import importlib as imp
 from itertools import combinations
 from tqdm import tqdm, tqdm_notebook
 
 from utils import tools, common
+from algorithm import neighbor_operator
 from algorithm.base import Algorithm
+neighbor_operator = imp.reload(neighbor_operator)
 
 
 class LocalSearch(Algorithm):
@@ -29,22 +32,21 @@ class LocalSearch(Algorithm):
         self.cur_cost = common.compute_solution(self.problem, self.solution)
         if verbose:
             print('Start cost: {}'.format(self.cur_cost))
-        for comb in tqdm(combinations(np.arange(1, len(self.solution)-k,
-                                                dtype=np.int32), 2)):
-            tmp_sol = copy(self.solution)
-            i, j = comb
-            if abs(i-j) > k:
-                tmp_sol[i:i+k], tmp_sol[j:j+k] = copy(tmp_sol[j:j+k]), copy(tmp_sol[i:i+k])
-            else:
-                continue
+
+        feasible_saving = copy(self.solution)
+        nn_operator = neighbor_operator.NeighborOperator()
+
+        for _ in tqdm(range(self.n_iter), disable=(not verbose)):
+            tmp_sol = nn_operator.random_operator(self.solution)
             cost = common.compute_solution(self.problem, tmp_sol)
-            if self.cur_cost > cost:
+            if self.cur_cost >= cost:
                 self.cur_cost = cost
                 self.solution = tmp_sol
+                if common.check_solution(self.problem, self.solution):
+                    feasible_saving = copy(self.solution)
 
-            if self.n_iter == 0:
-                break
-            self.n_iter -= 1
-
-
+        if not common.check_solution(self.problem, self.solution):
+            self.solution = feasible_saving
+            self.cur_cost = common.compute_solution(self.problem,
+                                                    self.solution)
         return self.solution, self.cur_cost

@@ -2,6 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def visualize_fitness(history):
+    plt.figure(figsize=(9,4))
+    plt.plot(history, label='fitness')
+    plt.ylabel('fitness value')
+    plt.xlabel('epoch')
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+
 def visualize_problem(problem, solution=None, annotate=True, figsize=(10, 6)):
     plt.figure(figsize=figsize)
     locations = problem['locations']
