@@ -18,7 +18,7 @@ vehicle routing problem](http://citeseerx.ist.psu.edu/viewdoc/downloa[d?doi=10.1
 # A-benchmarks
 
 ---
-|    | benchmark     |   n_locations |   n_trucks |   capacity |   optimal_cost |   ABC_cost |   ABC_time |     error | is_feasible   |
+|    | benchmark     |   n_locations |   n_trucks |   capacity |   optimal_cost |   ABC_cost |   time (s) |     error | is_feasible   |
 |---:|:--------------|--------------:|-----------:|-----------:|---------------:|-----------:|-----------:|----------:|:--------------|
 |  0 | A-n32-k5.vrp  |            32 |          5 |        100 |            784 |    793.689 |    34.4186 | 0.0123585 | True          |
 |  1 | A-n33-k5.vrp  |            33 |          5 |        100 |            661 |    677.849 |    33.94   | 0.0254898 | True          |
@@ -51,7 +51,7 @@ vehicle routing problem](http://citeseerx.ist.psu.edu/viewdoc/downloa[d?doi=10.1
 # B-benchmarks
 
 ---
-|    | benchmark     |   n_locations |   n_trucks |   capacity |   optimal_cost |   ABC_cost |   ABC_time |     error | is_feasible   |
+|    | benchmark     |   n_locations |   n_trucks |   capacity |   optimal_cost |   ABC_cost |   time (s) |     error | is_feasible   |
 |---:|:--------------|--------------:|-----------:|-----------:|---------------:|-----------:|-----------:|----------:|:--------------|
 |  0 | B-n31-k5.vrp  |            31 |          5 |        100 |            672 |    706.569 |    20.9377 | 0.0514423 | True          |
 |  1 | B-n34-k5.vrp  |            34 |          5 |        100 |            788 |    808.974 |    23.4713 | 0.0266171 | True          |
