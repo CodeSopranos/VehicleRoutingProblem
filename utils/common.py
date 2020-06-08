@@ -4,34 +4,50 @@ import pandas as pd
 
 from copy import copy
 from datetime import datetime
-from itertools import combinations
 from tqdm import tqdm, tqdm_notebook
 
 
 def generate_solution(problem,
-                      patience=10,
+                      alpha=1.0,
+                      betta=0.5,
+                      patience=50,
                       verbose=False) -> np.ndarray:
-
+    MAXIMUM_PENALTY = 10000000
     dists   = problem['dists']
     demands = problem['demands']
-    i_loc   = [i for i in range(1, problem['n_locations'])]
-    routes  = [[0] for _ in range(problem['n_trucks'])]
 
-    for i in range(len(i_loc)):
-        route_dists = []
-        random_loc  = random.choice(i_loc)
-        for route in routes:
-            dist_to_loc  = dists[route[-1]][random_loc]
-            route_demand = sum([demands[i] for i in route])
-            alpha = (route_demand + 0.5*dist_to_loc)
-            route_dists.append(alpha)
-        routes[np.argmin(route_dists)].append(random_loc)
-        i_loc.remove(random_loc)
+    for itr in range(patience):
 
-    solution = [loc for route in routes for loc in route]
-    solution.append(0)
-    solution = np.array(solution, dtype=np.int32)
+        i_loc   = [i for i in range(1, problem['n_locations'])]
+        routes  = [[0] for _ in range(problem['n_trucks'])]
 
+        for i in range(len(i_loc)):
+            route_dists = []
+            random_loc  = random.choice(i_loc)
+            counter     = 0
+            for route in routes:
+                dist_to_loc  = dists[route[-1]][random_loc]
+                route_demand = sum([demands[i] for i in route]) + demands[random_loc]
+                if counter > len(routes) / 2:
+                    random_loc  = random.choice(i_loc)
+                if  route_demand > problem['capacity']:
+                    coef = MAXIMUM_PENALTY
+                else:
+                    coef =   alpha * i * len(route) + \
+                             betta * max(0, route_demand-problem['capacity']) + \
+                             dist_to_loc
+                route_dists.append(coef)
+
+            routes[np.argmin(route_dists)].append(random_loc)
+            i_loc.remove(random_loc)
+
+        solution = [loc for route in routes for loc in route]
+        solution.append(0)
+        solution = np.array(solution, dtype=np.int32)
+
+        if check_depots_sanity(solution):
+            if check_capacity_criteria(problem, solution):
+                break
     return solution
 
 
@@ -83,6 +99,17 @@ def check_solution(problem,
         for i, loc in enumerate(solution[:-1]):
             x[solution[i], solution[i+1]] = 1
 
+    # sanity check №4
+    # all locations should be in the solution
+    if len(np.unique(solution)) != problem['n_locations']:
+        if verbose:
+            print('Failed locations sanity check')
+            for i in range(problem['n_locations']):
+                if i not in solution:
+                    print('Missing: {} location'.format(i))
+                    break
+        return False
+
     # cruteria check №1
     # Sum Xi0 = M For all i in V
     # Sum X0j = M For all j in V and
@@ -111,6 +138,14 @@ def check_solution(problem,
 
     return True
 
+
+def check_depots_sanity(solution):
+    sol_len = len(solution)
+    depots = list(filter(lambda i: solution[i]==0, range(sol_len)))
+    for i in range(len(depots)-1):
+        if abs(depots[i+1] - depots[i]) <= 1:
+            return False
+    return True
 
 def check_One_criteria(problem,
                        solution,
@@ -164,7 +199,18 @@ def check_capacity_criteria(problem,
     return True
 
 
-def get_routes_demand(problem, solution):
+def get_routes(solution):
+    sol_len = len(solution)
+    depots  = list(filter(lambda i: solution[i]==0, range(sol_len)))
+    routes  = []
+    for i, d in  enumerate(depots[:-1]):
+        route = solution[depots[i]+1:depots[i+1]]
+        routes.append(route)
+    return routes
+
+
+def get_routes_demand(problem, _solution):
+    solution = copy(_solution)
     sol_len = len(solution)
     demands = problem['demands']
     depots = list(filter(lambda i: solution[i]==0, range(sol_len)))

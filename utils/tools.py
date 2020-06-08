@@ -71,3 +71,14 @@ def get_problem(path) -> dict:
     problem_dct['dists'] = dists
 
     return problem_dct
+
+def write_solution(solution, cost, filename):
+    
+    depots = list(filter(lambda i: solution[i]==0, range(len(solution))))
+    with open('output/'+filename, 'w') as f:
+        for i, d in  enumerate(depots[:-1]):
+            route = solution[depots[i]+1:depots[i+1]]
+            f.writelines('Route #{}: '.format(i+1)+' '.join(map(repr, route))+'\n')
+        f.writelines('cost {}'.format(cost))
+    f.close()
+    return

@@ -28,16 +28,16 @@ class LocalSearch(Algorithm):
         self.params   = params
 
 
-    def solve(self, verbose=False, k=3):
+    def solve(self, only_feasible=True, verbose=False):
         self.cur_cost = common.compute_solution(self.problem, self.solution)
         if verbose:
             print('Start cost: {}'.format(self.cur_cost))
 
         feasible_saving = copy(self.solution)
-        nn_operator = neighbor_operator.NeighborOperator()
+        operator = neighbor_operator.NeighborOperator()
 
         for _ in tqdm(range(self.n_iter), disable=(not verbose)):
-            tmp_sol = nn_operator.random_operator(self.solution)
+            tmp_sol = operator.random_operator(self.solution)
             cost = common.compute_solution(self.problem, tmp_sol)
             if self.cur_cost >= cost:
                 self.cur_cost = cost
@@ -45,7 +45,8 @@ class LocalSearch(Algorithm):
                 if common.check_solution(self.problem, self.solution):
                     feasible_saving = copy(self.solution)
 
-        if not common.check_solution(self.problem, self.solution):
+        if ((only_feasible) and
+            (not common.check_solution(self.problem, self.solution))):
             self.solution = feasible_saving
             self.cur_cost = common.compute_solution(self.problem,
                                                     self.solution)
