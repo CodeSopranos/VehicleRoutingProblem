@@ -1,6 +1,6 @@
 # VehicleRoutingProblem
 
-The research work on Capacitated Vehicle Routing Problem (C-VRP) solving via Artifical Bee Colony (ABC) Algorithm 
+The research work on Capacitated Vehicle Routing Problem (C-VRP) solving via Artifical Bee Colony (ABC) Algorithm which enhanced with *Local Search*.
 
 ---
 **Problem example:**
